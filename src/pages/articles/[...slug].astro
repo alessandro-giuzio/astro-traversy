@@ -1,6 +1,8 @@
 ---
 import Layout from '../../layouts/Layout.astro';
+import Tags from '../../components/Tags.astro';
 import { getEntry } from 'astro:content';
+import { formatDate } from '../../utils';
 
 const { slug } = Astro.params;
 
@@ -27,21 +29,14 @@ const { Content } = await entry.render();
     <h1 class='text-4xl font-bold mb-2'>
       {entry.data.title}
     </h1>
-    <h3 class='text-lg mb-2'>Written by John Doe on 2024-01-20</h3>
-    <div class='flex flex-wrap gap-2 mb-6'>
-      <span
-        class='px-2 py-1 bg-blue-500 text-white rounded-full text-xs hover:opacity-90'
-        ><a href=''>Code</a></span
-      >
-      <span
-        class='px-2 py-1 bg-purple-500 text-white rounded-full text-xs hover:opacity-90'
-        ><a href=''>Programming</a></span
-      >
-    </div>
+    <h3 class='text-lg mb-2'>
+      Written by {entry.data.author} on {formatDate(entry.data.pubDate)}
+    </h3>
+    <Tags tags={entry.data.tags} />
     <img
-      src='images/image1.png'
+      src={'/images/' + entry.data.image}
       alt='Article Image'
-      class='w-full h-auto rounded-xl mb-6'
+      class='w-full h-auto rounded-xl mb-6 my-6'
     />
     <Content />
   </article>
