@@ -4,6 +4,10 @@ import { getCollection } from 'astro:content';
 import type { CollectionEntry } from 'astro:content';
 import ArticleCard from '../../components/ArticleCard.astro';
 import SearchForm from '../../components/SearchForm.astro';
+import Pagination from '../../components/Pagination.astro';
+import { ARTICLES_POR_PAGE } from '../../constants';
+
+const currentPage: number | null = +Astro.url.searchParams.get('page')! || 1;
 
 const query: string | null = Astro.url.searchParams.get('query');
 
@@ -13,6 +17,15 @@ const allBlogArticles: CollectionEntry<'blog'>[] = (
   (a: CollectionEntry<'blog'>, b: CollectionEntry<'blog'>) =>
     b.data.pubDate.valueOf() - a.data.pubDate.valueOf()
 );
+
+const totalPages: number = Math.ceil(
+  allBlogArticles.length / ARTICLES_POR_PAGE
+);
+
+const articlesForPage: CollectionEntry<'blog'>[] = allBlogArticles.slice(
+  (currentPage - 1) * ARTICLES_POR_PAGE,
+  currentPage * ARTICLES_POR_PAGE
+);
 ---
 
 <Layout>
@@ -20,22 +33,12 @@ const allBlogArticles: CollectionEntry<'blog'>[] = (
   <SearchForm query={query} />
   <br />
   <div class='grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3'>
-    {allBlogArticles.map(article => <ArticleCard article={article} />)}
+    {articlesForPage.map(article => <ArticleCard article={article} />)}
   </div>
-
-  <!-- Pagination -->
-  <div class='flex justify-between mt-10'>
-    <a
-      href='#'
-      class='inline-block bg-indigo-100 px-3 py-2 hover:bg-indigo-600 hover:text-white rounded-lg'
-    >
-      Previous
-    </a>
-    <a
-      href='#'
-      class='inline-block bg-indigo-100 px-3 py-2 hover:bg-indigo-600 hover:text-white rounded-lg'
-    >
-      Next
-    </a>
-  </div>
+  <Pagination
+    currentPage={currentPage}
+    totalPages={totalPages}
+    disablePrevious={currentPage === 1}
+    disableNext={currentPage === totalPages}
+  />
 </Layout>
